@@ -24,7 +24,7 @@ def add_msg():
     msg = request.get_json(force=True)
     if(len(msg["message"])>140):
         abort(404)
-    msg['id'] = len(msgs) + id_counter
+    msg['id'] = id_counter
     msg['readBy'] = []
     msgs.append(msg)
     id_counter += 1
