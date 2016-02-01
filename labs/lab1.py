@@ -5,6 +5,8 @@ from flask import Flask,request,jsonify,abort
 app = Flask(__name__)
 
 msgs = []
+global id_counter
+id_counter = 1
 
 @app.route('/')
 def hello_world():
@@ -18,12 +20,14 @@ def all_msgs():
 
 @app.route('/messages', methods=['POST'])
 def add_msg():
+    global id_counter
     msg = request.get_json(force=True)
     if(len(msg["message"])>140):
         abort(404)
-    msg['id'] = len(msgs) + 1
+    msg['id'] = len(msgs) + id_counter
     msg['readBy'] = []
     msgs.append(msg)
+    id_counter += 1
     return "OK"
 
 
@@ -37,10 +41,10 @@ def get_msg(MessageID):
 
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
-    if not MessageID:
+    if not MessageID and not msgs:
         abort(400)
     elif not msgs:
-        raise Exception("No messages to remove")
+        abort(400)
     for msg in msgs:
         if msg['id'] == int(MessageID):
             msgs.remove(msg)
@@ -49,6 +53,8 @@ def remove_msg(MessageID):
 
 @app.route('/messages/<MessageID>/flag/<UserId>', methods = ['POST'])
 def mark_read(MessageID,UserId):
+    if not MessageID and not UserId:
+        abort(400)
     for msg in msgs:
         if msg['id'] == int(MessageID):
             msg["readBy"].append(UserId)
