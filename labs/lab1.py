@@ -22,47 +22,51 @@ def all_msgs():
 def add_msg():
     global id_counter
     msg = request.get_json(force=True)
-    if(len(msg["message"])>140):
-        abort(404)
-    msg['id'] = id_counter
+    if(len(msg["message"])>140 and not isinstance(str,msg["message"])):
+        abort(400)
+    msg['id'] = str(id_counter)
     msg['readBy'] = []
     msgs.append(msg)
     id_counter += 1
-    return "OK"
+    return ""
 
 
 @app.route('/messages/<MessageID>', methods=['GET'])
 def get_msg(MessageID):
     for i in msgs:
-        if i['id'] == int(MessageID):
+        if i['id'] == MessageID:
             return jsonify(i)
-
+    abort(400)
 
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
-    if not MessageID and not msgs:
-        abort(400)
-    elif not msgs:
+    has_removed = False
+    if not msgs:
         abort(400)
     for msg in msgs:
-        if msg['id'] == int(MessageID):
+        if msg['id'] == MessageID:
             msgs.remove(msg)
-    return "OK"
+            has_removed = True
+    if not has_removed:
+        abort(400)
+    return ""
 
 
 @app.route('/messages/<MessageID>/flag/<UserId>', methods = ['POST'])
 def mark_read(MessageID,UserId):
-    if not MessageID and not UserId:
-        abort(400)
+    has_marked = False
     for msg in msgs:
         if msg['id'] == int(MessageID):
             msg["readBy"].append(UserId)
-    return "OK"
+            has_marked = True
+    if not has_marked:
+        abort(400)
+    return ""
 
 
 @app.route('/messages/unread/<UserId>', methods=['GET'])
 def unread_msg(UserId):
-    if not UserId:
+    if not isinstance(str,UserId):
         abort(400)
     unreadmsgs = []
     for i in msgs:
