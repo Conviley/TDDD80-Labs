@@ -38,7 +38,6 @@ def get_msg(MessageID):
             return jsonify(i)
 
 
-
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
     if not MessageID and not msgs:
