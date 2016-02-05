@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from unohelper import Base
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/pp.db'
@@ -20,6 +21,7 @@ class User(db.Model):
 class Messages(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     message = db.Column(db.String(140))
+
     def __init__(self,message):
         self.message = message
         self.id = id(self)
