@@ -6,7 +6,7 @@ from lab2database import User,Messages,db
 def add_user(User):
     adduser = requests.post('http://127.0.0.1:9089/add_user', json=User)
 def add_message(msg):
-    addmsg = requests.post('http://127.0.0.1:9089/messages/add', json=msg,)
+    addmsg = requests.post('http://127.0.0.1:9089/messages', json=msg,)
 
 def mark_read(id,UserID):
     markmsg = requests.post('http://127.0.0.1:9089/messages/'+str(id)+'/flag/' + str(UserID))

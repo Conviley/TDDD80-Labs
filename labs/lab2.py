@@ -2,6 +2,7 @@ import code
 import json
 
 
+
 from flask import Flask,request,jsonify,abort, current_app, make_response, Response
 from lab2database import User,Messages,db
 app = Flask(__name__)
@@ -16,11 +17,8 @@ def hello_world():
 def all_msgs():
     message_list = []
     messages = Messages.query.all()
-    print(messages, "messages")
     for i in messages:
         message_list.append(i.get_dict())
-    print(message_list)
-    print(json.dumps(message_list, indent= 2, sort_keys=True))
     ret = json.dumps(message_list,indent=4,sort_keys=True,)
     resp = Response(response=ret,status=200,mimetype="application/json")
     return resp
@@ -46,7 +44,9 @@ def get_msg(MessageID):
 
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
-    remove = Messages.query.filter_by(id=MessageID).delete()
+    if not Messages.query.filter_by(id=MessageID).first():
+        abort(400)
+    Messages.query.filter_by(id=MessageID).delete()
     db.session.commit()
     return ""
 
@@ -89,16 +89,22 @@ def add_user():
     return ""
 
 
-@app.route('/messages/add', methods=['POST'])
+@app.route('/messages', methods=['POST'])
 def add_msg():
     global id_counter
     msg = request.get_json()
-    msg = Messages(msg)
+    if not msg:
+        abort(400)
+    msg = Messages(msg["message"])
     db.session.add(msg)
     db.session.commit()
     return ""
 
+def db_reset():
+    db.drop_all()
+    db.create_all()
 
 if __name__ == '__main__':
+    db_reset()
     app.debug = True
     app.run(port=9089)
