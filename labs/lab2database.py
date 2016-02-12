@@ -8,7 +8,7 @@ db = SQLAlchemy(app)
 
 #msg_one.readBy.append(user)
 
-read_messages = db.Table('read_messages_relation', db.Model.metadata,
+user_messages = db.Table('user_messages', db.Model.metadata,
     db.Column('messages_id', db.Integer, db.ForeignKey('messages.id')),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
 )
@@ -17,29 +17,31 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
 
+    messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy")
     # tags = db.relationship('Messages', secondary=read_messages,
     #     backref=db.backref('users', lazy='dynamic'))
 
     def __init__(self, username):
         self.username = username
-        self.id = id(self)
 
     def get_name(self):
         return self.username
 
+    def get_id(self):
+        return self.id
+
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.username + '<Id: %r>' % self.id
 
 class Messages(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     message = db.Column(db.String(140))
 
-    readBy = db.relationship('User', secondary=read_messages)
+    readBy = db.relationship('User', secondary=user_messages, back_populates = "messages_read")
 
 
     def __init__(self,message):
          self.message = message
-         self.id = id(self)
 
     def get_msg(self):
         return self.message
@@ -50,7 +52,7 @@ class Messages(db.Model):
     def get_dict(self):
         read_list=[]
         for i in self.readBy:
-            read_list.append(i.get_name())
+            read_list.append([i.get_name(),i.get_id()])
         return  {'id' : self.get_id(), 'message' : self.get_msg(),'readBy' : read_list}
 
     def __repr__(self):

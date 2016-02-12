@@ -9,7 +9,7 @@ def add_message(msg):
     addmsg = requests.post('http://127.0.0.1:9089/messages/add', json=msg,)
 
 def mark_read(id,UserID):
-    markmsg = requests.post('http://127.0.0.1:9089/messages/'+str(id)+'/flag/' + UserID)
+    markmsg = requests.post('http://127.0.0.1:9089/messages/'+str(id)+'/flag/' + str(UserID))
 
 def get_message(msgid):
     get_msg = requests.get('http://127.0.0.1:9089/messages'+str(msgid))

@@ -39,33 +39,26 @@ def get_msg(MessageID):
     message_list=[]
     get_all_messages(message_list)
     for i in message_list:
-        if i['id'] == MessageID:
+        if i['id'] == int(MessageID):
             return jsonify(i)
     abort(400)
 
 
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
-    remove = Messages.query.filter_by(id=int(MessageID)).delete()
+    remove = Messages.query.filter_by(id=MessageID).delete()
     db.session.commit()
     return ""
 
 
 @app.route('/messages/<MessageID>/flag/<UserId>', methods = ['POST'])
 def mark_read(MessageID,UserId):
-    print('hej')
-    message_list = []
     messages = Messages.query.all()
-    has_marked = False
     message = Messages.query.filter_by(id=MessageID).first()
-    user = User.query.filter_by(username=UserId).first()
+    user = User.query.filter_by(id=int(UserId)).first()
     if not user:
         abort(400)
     message.readBy.append(user)
-    get_all_messages(message_list)
-    has_marked = True
-    if not has_marked:
-        abort(400)
     db.session.commit()
     return ""
 
@@ -73,7 +66,9 @@ def mark_read(MessageID,UserId):
 @app.route('/messages/unread/<UserId>', methods=['GET'])
 def unread_msg(UserId):
     message_list = []
-    unreadmsgs = Messages.query.filter(~Messages.readBy.any(username = UserId))
+    if not User.query.filter_by(id = UserId).first():
+        abort(400)
+    unreadmsgs = Messages.query.filter(~Messages.readBy.any(id = UserId))
     for i in unreadmsgs:
         message_list.append(i.get_dict())
     ret = json.dumps(message_list,indent=4,sort_keys=True,)
@@ -84,9 +79,13 @@ def unread_msg(UserId):
 @app.route('/add_user',methods=['POST'])
 def add_user():
     user = request.get_json()
-    user = User(user)
-    db.session.add(user)
-    db.session.commit()
+    print(user)
+    if not User.query.filter_by(username=user).first():
+        user = User(user)
+        db.session.add(user)
+        db.session.commit()
+    else:
+        abort(400)
     return ""
 
 
