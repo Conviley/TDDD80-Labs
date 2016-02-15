@@ -110,7 +110,7 @@ def add_msg():
     return ""
 
 def db_reset():
-    db.drop_all()
+    #db.drop_all()
     db.create_all()
 
 db_reset()
