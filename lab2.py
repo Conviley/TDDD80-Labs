@@ -17,6 +17,7 @@ else:
 #db = SQLAlchemy(app)
 
 
+db_reset()
 
 @app.route('/')
 def hello_world():
@@ -112,7 +113,6 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
-db_reset()
 if __name__ == '__main__':
     db_reset()
     app.run(port=9089)
