@@ -14,8 +14,9 @@ if "OPENSHIFT_POSTGRESQL_DB_URL" in os.environ:
 else:
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:////tmp/test.db"
 
+#db = SQLAlchemy(app)
 
-msgs = []
+
 
 @app.route('/')
 def hello_world():
@@ -100,9 +101,6 @@ def add_user():
 def add_msg():
     global id_counter
     msg = request.get_json(force=True)
-    print(msg)
-    if isinstance(msg, str):
-        print(msg,"tol")
     if not msg:
         abort(400)
     msg = Messages(msg)
@@ -114,7 +112,9 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
+
 if __name__ == '__main__':
     db_reset()
-    app.debug = True
     app.run(port=9089)
+
+app.debug = True

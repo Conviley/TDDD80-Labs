@@ -93,7 +93,7 @@ class ServerTestCase(unittest.TestCase):
         return self.app.get('/messages')
 
     def send_message(self, message):
-        return self.app.post('/messages', data = json.dumps(message),content_type="application/json" )
+        return self.app.post('/messages', data = json.dumps(dict(message=message)),content_type="application/json" )
 
     def get_message(self, MessageID):
         return self.app.get('/messages/' + str(MessageID))
