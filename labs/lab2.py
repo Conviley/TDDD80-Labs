@@ -27,7 +27,6 @@ def all_msgs():
 def get_all_messages(seq):
     message_list = []
     messages = Messages.query.all()
-    print(messages, "messages")
     for i in messages:
         seq.append(i.get_dict())
 
@@ -79,7 +78,6 @@ def unread_msg(UserId):
 @app.route('/add_user',methods=['POST'])
 def add_user():
     user = request.get_json()
-    print(user)
     if not User.query.filter_by(username=user).first():
         user = User(user)
         db.session.add(user)
