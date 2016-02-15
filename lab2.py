@@ -20,7 +20,7 @@ else:
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Hello0 World!'
 
 
 @app.route('/messages', methods=['GET'])
@@ -112,7 +112,7 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
-
+db_reset()
 if __name__ == '__main__':
     db_reset()
     app.run(port=9089)
