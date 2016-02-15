@@ -20,7 +20,7 @@ else:
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Hello0 World!'
 
 
 @app.route('/messages', methods=['GET'])
