@@ -65,6 +65,7 @@ def mark_read(MessageID,UserId):
     messages = Messages.query.all()
     message = Messages.query.filter_by(id=int(MessageID)).first()
     user = User.query.filter_by(id=int(UserId)).first()
+    print(user)
     if not user:
         abort(400)
     message.readBy.append(user)
