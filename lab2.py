@@ -63,7 +63,7 @@ def get_msg(MessageID):
 def remove_msg(MessageID):
     if not Messages.query.filter_by(id=int(MessageID)).first():
         abort(400)
-    Messages.query.filter_by(id=MessageID).destroy()
+    Messages.query.filter_by(id=MessageID).delete()
     db.session.commit()
     return ""
 

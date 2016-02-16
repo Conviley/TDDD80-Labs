@@ -6,15 +6,15 @@ from lab2 import db
 #db = SQLAlchemy(app)
 
 user_messages = db.Table('user_messages', db.Model.metadata,
-    db.Column('messages_id', db.Integer, db.ForeignKey('messages.id',onupdate="cascade")),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id', onupdate="cascade"))
+    db.Column('messages_id', db.Integer, db.ForeignKey('messages.id',ondelete="cascade")),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete="cascade"))
 )
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
 
-    messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy")
+    messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy",cascade='all,delete-orphan')
     # tags = db.relationship('Messages', secondary=read_messages,
     #     backref=db.backref('users', lazy='dynamic'))
 
@@ -37,7 +37,7 @@ class Messages(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     message = db.Column(db.String(140))
 
-    readBy = db.relationship('User', secondary=user_messages, back_populates = "messages_read")
+    readBy = db.relationship('User', secondary=user_messages, back_populates = "messages_read",cascade='all,delete-orphan')
 
 
     def __init__(self,message):
