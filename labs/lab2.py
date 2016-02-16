@@ -33,6 +33,14 @@ def all_msgs():
     resp = Response(response=ret,status=200,mimetype="application/json")
     return resp
 
+def all_users():
+    user_list = []
+    users = User.query.all()
+    for i in users:
+       user_list.append(i.get_dict())
+    ret = json.dumps(user_list,indent=4,sort_keys=True,)
+    resp = Response(response=ret,status=200,mimetype="application/json")
+    return resp
 
 def get_all_messages(seq):
     message_list = []
