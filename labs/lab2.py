@@ -53,7 +53,7 @@ def get_msg(MessageID):
 
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
-    if not Messages.query.filter_by(id=MessageID).first():
+    if not Messages.query.filter_by(id=int(MessageID)).first():
         abort(400)
     Messages.query.filter_by(id=MessageID).delete()
     db.session.commit()
