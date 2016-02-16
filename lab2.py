@@ -122,7 +122,7 @@ def add_msg():
 def db_reset():
     db.drop_all()
     db.create_all()
-
+#http://flask-tjegu689tddd80.openshift.ida.liu.se/
 if __name__ == '__main__':
     db_reset()
     app.run(port=9089)
