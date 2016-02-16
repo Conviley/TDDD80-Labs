@@ -2,10 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/pp.db'
 db = SQLAlchemy(app)
-
-#msg_one.readBy.append(user)
 
 user_messages = db.Table('user_messages', db.Model.metadata,
     db.Column('messages_id', db.Integer, db.ForeignKey('messages.id')),

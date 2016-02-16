@@ -19,7 +19,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_root_db(self):
         rv = self.app.get('/')
-        self.assertEqual(b'Hello World!',rv.data)
+        self.assertEqual(b'Hello000 World!',rv.data)
 
 
     def test_get_all_msgs(self):
@@ -93,7 +93,7 @@ class ServerTestCase(unittest.TestCase):
         return self.app.get('/messages')
 
     def send_message(self, message):
-        return self.app.post('/messages', data = json.dumps(dict(message=message)),content_type="application/json" )
+        return self.app.post('/messages', data = json.dumps(message),content_type="application/json" )
 
     def get_message(self, MessageID):
         return self.app.get('/messages/' + str(MessageID))

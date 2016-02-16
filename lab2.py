@@ -18,10 +18,9 @@ else:
 
 
 
-
 @app.route('/')
 def hello_world():
-    return 'Hello0 World!'
+    return 'Hello000 World!'
 
 
 @app.route('/messages', methods=['GET'])
@@ -34,6 +33,15 @@ def all_msgs():
     resp = Response(response=ret,status=200,mimetype="application/json")
     return resp
 
+@app.route('/users', methods=['GET'])
+def all_users():
+    user_list = []
+    users = User.query.all()
+    for i in users:
+       user_list.append(i.get_dict())
+    ret = json.dumps(user_list,indent=4,sort_keys=True,)
+    resp = Response(response=ret,status=200,mimetype="application/json")
+    return resp
 
 def get_all_messages(seq):
     message_list = []
@@ -54,7 +62,7 @@ def get_msg(MessageID):
 
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 def remove_msg(MessageID):
-    if not Messages.query.filter_by(id=MessageID).first():
+    if not Messages.query.filter_by(id=int(MessageID)).first():
         abort(400)
     Messages.query.filter_by(id=MessageID).delete()
     db.session.commit()
@@ -64,8 +72,9 @@ def remove_msg(MessageID):
 @app.route('/messages/<MessageID>/flag/<UserId>', methods = ['POST'])
 def mark_read(MessageID,UserId):
     messages = Messages.query.all()
-    message = Messages.query.filter_by(id=MessageID).first()
+    message = Messages.query.filter_by(id=int(MessageID)).first()
     user = User.query.filter_by(id=int(UserId)).first()
+    print(user)
     if not user:
         abort(400)
     message.readBy.append(user)
@@ -110,11 +119,10 @@ def add_msg():
     return ""
 
 def db_reset():
-    #db.drop_all()
+    db.drop_all()
     db.create_all()
 
 db_reset()
-
 if __name__ == '__main__':
     db_reset()
     app.run(port=9089)
