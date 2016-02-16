@@ -28,9 +28,6 @@ class User(db.Model):
         return self.id
 
     def get_dict(self):
-        read_list=[]
-        for i in self.readBy:
-            read_list.append([i.get_name(),i.get_id()])
         return  {'id' : self.get_id(),'username': self.get_name()}
 
     def __repr__(self):
