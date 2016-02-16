@@ -99,7 +99,7 @@ def unread_msg(UserId):
 def add_user():
     user = request.get_json()
     if not User.query.filter_by(username=user).first():
-        print("one up")
+        print(User.query.all())
         user = User(user)
         db.session.add(user)
         db.session.commit()
