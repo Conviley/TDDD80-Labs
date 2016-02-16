@@ -107,7 +107,7 @@ def add_user():
     return ""
 
 @app.route('/users/<UserID>', methods=['DELETE'])
-def remove_msg(UserID):
+def remove_user(UserID):
     if not User.query.filter_by(id=int(UserID)).first():
         abort(400)
     User.query.filter_by(id=UserID).delete()
