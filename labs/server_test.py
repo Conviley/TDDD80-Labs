@@ -19,7 +19,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_root_db(self):
         rv = self.app.get('/')
-        self.assertEqual(b'Hello World!',rv.data)
+        self.assertEqual(b'Hello0 World!',rv.data)
 
 
     def test_get_all_msgs(self):
