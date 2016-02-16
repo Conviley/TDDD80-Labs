@@ -14,7 +14,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
 
-    messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy",cascade='all,delete-orphan',single_parent=True)
+    messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy",cascade='all,delete-orphan')
     # tags = db.relationship('Messages', secondary=read_messages,
     #     backref=db.backref('users', lazy='dynamic'))
 
