@@ -1,6 +1,6 @@
+from lab2 import db
 #from flask import Flask
 #from flask_sqlalchemy import SQLAlchemy
-from lab2 import db
 #app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/pp.db'
 #db = SQLAlchemy(app)

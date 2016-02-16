@@ -1,11 +1,8 @@
-import code
 import json
-
-
 import os
-from flask import Flask,request,jsonify,abort, current_app, make_response, Response
-from lab2database import User,Messages
+from flask import Flask,request,jsonify,abort, Response
 from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
 msgs = []
 
@@ -16,6 +13,7 @@ else:
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:////tmp/test.db"
 
 db = SQLAlchemy(app)
+from lab2database import User,Messages
 
 
 

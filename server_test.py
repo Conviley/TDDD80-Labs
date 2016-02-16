@@ -34,6 +34,12 @@ class ServerTestCase(unittest.TestCase):
         for msg in actual_msgs_sent:
             self.assertEqual(msg["message"],"Message")
 
+    def test_get_all_users(self):
+        self.add_user("Conviley")
+        self.add_user("Rubbehill")
+        rv = self.get_all_users()
+        users = json.loads(rv.data)
+        self.assertEqual(len(users), 2)
 
 
     def test_get_message(self):
@@ -92,8 +98,15 @@ class ServerTestCase(unittest.TestCase):
     def get_all_msgs(self):
         return self.app.get('/messages')
 
+    def get_all_users(self):
+        return self.app.get('/users')
+
     def send_message(self, message):
         return self.app.post('/messages', data = json.dumps(message),content_type="application/json" )
+
+    def add_user(self, user):
+        return self.app.post('/add_user', data = json.dumps(user),content_type="application/json" )
+
 
     def get_message(self, MessageID):
         return self.app.get('/messages/' + str(MessageID))

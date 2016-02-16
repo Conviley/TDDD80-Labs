@@ -3,8 +3,11 @@ import requests
 from flask import *
 from lab2database import User,Messages,db
 
+url = 'http://127.0.0.1:9089/'
+urlsharp = 'http://flask-tjegu689tddd80.openshift.ida.liu.se/'
+
 def add_user(User):
-    adduser = requests.post('http://flask-tjegu689tddd80.openshift.ida.liu.se/add_user', json=User)
+    adduser = requests.post(urlsharp + 'add_user', json=User)
 def add_message(msg):
     addmsg = requests.post('http://flask-tjegu689tddd80.openshift.ida.liu.se/messages',data = json.dumps(msg))#json.dumps(dict(message=msg)))
 
