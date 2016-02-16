@@ -122,7 +122,7 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
-db_reset()
+db.create_all()
 
 if __name__ == '__main__':
     db_reset()
