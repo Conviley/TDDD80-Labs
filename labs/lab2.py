@@ -33,6 +33,7 @@ def all_msgs():
     resp = Response(response=ret,status=200,mimetype="application/json")
     return resp
 
+@app.route('/users', methods=['GET'])
 def all_users():
     user_list = []
     users = User.query.all()
