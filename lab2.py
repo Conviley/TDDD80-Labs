@@ -106,6 +106,13 @@ def add_user():
         abort(400)
     return ""
 
+@app.route('/users/<UserID>', methods=['DELETE'])
+def remove_msg(UserID):
+    if not User.query.filter_by(id=int(UserID)).first():
+        abort(400)
+    User.query.filter_by(id=UserID).delete()
+    db.session.commit()
+    return ""
 
 @app.route('/messages', methods=['POST'])
 def add_msg():
