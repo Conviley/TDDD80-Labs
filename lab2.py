@@ -12,6 +12,7 @@ msgs = []
 if "OPENSHIFT_POSTGRESQL_DB_URL" in os.environ:
     app.config["SQLALCHEMY_DATABASE_URI"]=os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
 else:
+    print("wigga")
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:////tmp/test.db"
 
 #db = SQLAlchemy(app)
