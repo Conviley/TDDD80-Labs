@@ -6,8 +6,8 @@ from lab2 import db
 #db = SQLAlchemy(app)
 
 user_messages = db.Table('user_messages', db.Model.metadata,
-    db.Column('messages_id', db.Integer, db.ForeignKey('messages.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+    db.Column('messages_id', db.Integer, db.ForeignKey('messages.id',ondelete="cascade")),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete="cascade"))
 )
 
 class User(db.Model):

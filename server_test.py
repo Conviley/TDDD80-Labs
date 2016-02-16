@@ -54,6 +54,8 @@ class ServerTestCase(unittest.TestCase):
     def test_remove_message(self):
         self.send_message("hello")
         self.send_message("hi")
+        self.add_user("Conviley")
+        self.mark_read(1,1)
         rv = self.get_all_msgs()
         all_msgs = json.loads(rv.data)
         self.delete_message(1)

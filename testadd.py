@@ -1,7 +1,7 @@
 import json
 import requests
 from flask import *
-from lab2database import User,Messages,db
+from lab2database import User,Messages
 
 url = 'http://127.0.0.1:9089/'
 urlsharp = 'http://flask-tjegu689tddd80.openshift.ida.liu.se/'
