@@ -123,7 +123,6 @@ def db_reset():
     db.create_all()
 
 db.create_all()
-
 if __name__ == '__main__':
     db_reset()
     app.run(port=9089)

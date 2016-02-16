@@ -37,7 +37,7 @@ class Messages(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     message = db.Column(db.String(140))
 
-    readBy = db.relationship('User', secondary=user_messages, back_populates = "messages_read",cascade='all,delete-orphan',single_parent=True)
+    readBy = db.relationship('User', secondary=user_messages, back_populates = "messages_read",cascade='all',single_parent=True)
 
 
     def __init__(self,message):
