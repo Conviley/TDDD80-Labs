@@ -99,6 +99,7 @@ def unread_msg(UserId):
 def add_user():
     user = request.get_json()
     if not User.query.filter_by(username=user).first():
+        print("one up")
         user = User(user)
         db.session.add(user)
         db.session.commit()
@@ -122,7 +123,6 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
-db_reset()
 if __name__ == '__main__':
     db_reset()
     app.run(port=9089)
