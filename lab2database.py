@@ -1,9 +1,9 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-app = Flask(__name__)
+#from flask import Flask
+#from flask_sqlalchemy import SQLAlchemy
+from lab2 import db
+#app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/pp.db'
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 
 user_messages = db.Table('user_messages', db.Model.metadata,
     db.Column('messages_id', db.Integer, db.ForeignKey('messages.id')),

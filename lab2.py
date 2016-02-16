@@ -2,10 +2,10 @@ import code
 import json
 
 
-from flask_sqlalchemy import SQLAlchemy
 import os
 from flask import Flask,request,jsonify,abort, current_app, make_response, Response
 from lab2database import User,Messages,db
+from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 msgs = []
 
@@ -15,7 +15,7 @@ else:
     print("wigga")
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:////tmp/test.db"
 
-#db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 
 
 
@@ -124,7 +124,7 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
-db_reset()
+db.create_all()
 
 if __name__ == '__main__':
     db_reset()
