@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 
-from labs.lab2 import app as application
+from lab2 import app as application
 
 virtenv = os.path.join(os.environ.get('OPENSHIFT_PYTHON_DIR','.'), 'virtenv')
 
