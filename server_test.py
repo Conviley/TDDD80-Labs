@@ -2,8 +2,9 @@ import os
 from flask import json
 import lab2
 import unittest
+from lab2 import User,Messages
 import tempfile
-from lab2database import Messages, User
+#from lab2database import Messages, User
 
 class ServerTestCase(unittest.TestCase):
 
@@ -35,8 +36,8 @@ class ServerTestCase(unittest.TestCase):
             self.assertEqual(msg["message"],"Message")
 
     def test_get_all_users(self):
-        self.add_user("Conviley")
-        self.add_user("Rubbehill")
+        self.add_user("Conviley","password")
+        self.add_user("Rubbehill","password")
         rv = self.get_all_users()
         users = json.loads(rv.data)
         self.assertEqual(len(users), 2)
@@ -63,6 +64,15 @@ class ServerTestCase(unittest.TestCase):
         msgs_left = json.loads(r.data)
         self.assertEqual(len(all_msgs)-1, len(msgs_left))
 
+    def test_remove_user(self):
+        self.add_user("Conviley")
+        rv = self.get_all_users()
+        all_users = json.loads(rv.data)
+        self.delete_user(1)
+        r = self.get_all_users()
+        users_left = json.loads(r.data)
+        self.assertEqual(len(all_users)-1, len(users_left))
+
     def test_mark_read(self):
         self.send_message("Hello Conviley")
         self.add_user("Conviley")
@@ -78,7 +88,6 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley")
         self.add_user("Ribbedy")
         self.mark_read(1,1)
-
         rv = self.app.get('/messages/unread/' + str(2))
         unread_msg = json.loads(rv.data)
         assert ["Ribbedy",2] not in unread_msg[0]['readBy']
@@ -104,11 +113,14 @@ class ServerTestCase(unittest.TestCase):
         return self.app.get('/users')
 
     def send_message(self, message):
+        #data = json.dumps(dict('message' = message))
         return self.app.post('/messages', data = json.dumps(message),content_type="application/json" )
 
-    def add_user(self, user):
-        return self.app.post('/add_user', data = json.dumps(user),content_type="application/json" )
+    def add_user(self, user,password):
+        return self.app.post('/add_user', data = json.dumps(user,password),content_type="application/json" )
 
+    def delete_user(self,messageId):
+        return self.app.delete('/users/' + str(messageId), data = json.dumps(messageId),content_type="application/json")
 
     def get_message(self, MessageID):
         return self.app.get('/messages/' + str(MessageID))
@@ -119,8 +131,8 @@ class ServerTestCase(unittest.TestCase):
     def mark_read(self,MessageID,UserID):
         return self.app.post('http://127.0.0.1:9089/messages/'+str(MessageID)+'/flag/' + str(UserID))
 
-    def add_user(self,User):
-        return self.app.post('http://127.0.0.1:9089/add_user', data=json.dumps(User), content_type ="application/json")
+
+
 
 
 
