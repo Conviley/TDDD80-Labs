@@ -12,7 +12,6 @@ msgs = []
 if "OPENSHIFT_POSTGRESQL_DB_URL" in os.environ:
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
 else:
-    print("wigga")
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/pp.db"
 
 app.config['SECRET_KEY'] = 'gurra bor i en liten vagn av bambu'
@@ -30,7 +29,10 @@ class User(db.Model):
     password = db.Column(db.String(255))
     token = db.Column(db.String(255), nullable=True)
 
+    written_messages = db.relationship('Messages', backref='user',lazy='dynamic')
     messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy")
+
+
     # tags = db.relationship('Messages', secondary=read_messages,
     #     backref=db.backref('users', lazy='dynamic'))
 
@@ -44,10 +46,8 @@ class User(db.Model):
     def generate_auth_token(self,experation=600):
         s = Serializer(app.config['SECRET_KEY'], expires_in=experation)
         token = s.dumps({'id':self.id})
-        print(token,"tokenet")
         self.token = token.decode('ascii')
         db.session.commit()
-        print(User.query.all())
         return s.dumps({'id':self.id})
 
     def get_name(self):
@@ -62,6 +62,10 @@ class User(db.Model):
     def get_token(self):
         return self.token
 
+    def get_written_messages(self):
+        print(self.written_messages,"written messages")
+        return self.written_messages
+
     def get_dict(self):
         return  {'id' : self.get_id(),'username': self.get_name()}
 
@@ -71,12 +75,12 @@ class User(db.Model):
 class Messages(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     message = db.Column(db.String(140))
-
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     readBy = db.relationship('User', secondary=user_messages, back_populates = "messages_read",cascade='all,delete-orphan',single_parent=True)
 
-
-    def __init__(self,message):
-         self.message = message
+    def __init__(self,message, user_id):
+        self.message = message
+        self.user_id = user_id
 
     def get_msg(self):
         return self.message
@@ -88,7 +92,7 @@ class Messages(db.Model):
         read_list=[]
         for i in self.readBy:
             read_list.append([i.get_name(),i.get_id()])
-        return  {'id' : self.get_id(), 'message' : self.get_msg(),'readBy' : read_list}
+        return  {'id' : self.get_id(), 'message' : self.get_msg(),'readBy' : read_list, 'written_by' : self.user_id}
 
     def __repr__(self):
         return '<Message %r>' % self.message + '<Id: %r>' % self.id
@@ -97,20 +101,17 @@ class Messages(db.Model):
 def verify_auth_token(token):
     s = Serializer(app.config['SECRET_KEY'])
     try:
-        print(token, "token innan loads")
         data = s.loads(token)
-        print(data, "ver_auth_tok")
     except SignatureExpired:
         return None
     except BadSignature:
         return None
     user = User.query.get(data['id'])
-    print(user, "hola")
     if user.token == token:
         return user
     else:
         print("you need to be logged in!")
-        abort(400)
+        abort(401)
 
 
 def verify_login(func):
@@ -121,7 +122,7 @@ def verify_login(func):
             print("You need to be logged in!")
         g.user = verify_auth_token(token)
         if g.user is None:
-            abort(400)
+            abort(401)
         return func(*args, **kwargs)
     return wrapper
 
@@ -134,12 +135,10 @@ def hello_world():
 @app.route('/user/login', methods=['POST'])
 def login():
     user_info = request.get_json()
-    print(user_info, "userinfo")
-    try_users = User.query.filter_by(username=user_info[0]).first()
-    print(try_users.get_password(), "the user")
+    try_users = User.query.filter_by(username=user_info['username']).first()
     if try_users is None:
         return "User or password is not matching"
-    if try_users.check_password(user_info[1]):
+    if try_users.check_password(user_info['password']):
         return try_users.generate_auth_token()
     else:
         return "User or password is not matching"
@@ -203,7 +202,10 @@ def get_msg(MessageID):
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 @verify_login
 def remove_msg(MessageID):
-    if not Messages.query.filter_by(id=int(MessageID)).first():
+    token = request.headers.get('authorization')
+    user = User.query.filter_by(token = token).first()
+    msg_to_remove = Messages.query.filter_by(id=int(MessageID)).first()
+    if not msg_to_remove or msg_to_remove.user_id != user.id:
         abort(400)
     Messages.query.filter_by(id=MessageID).delete()
     db.session.commit()
@@ -211,6 +213,7 @@ def remove_msg(MessageID):
 
 
 @app.route('/messages/<MessageID>/flag/<UserId>', methods=['POST'])
+@verify_login
 def mark_read(MessageID, UserId):
     Messages.query.all()
     message = Messages.query.filter_by(id=int(MessageID)).first()
@@ -238,13 +241,10 @@ def unread_msg(UserId):
 @app.route('/user', methods=['POST'])
 def add_user():
     user = request.get_json()
-    print(user, "hej")
-    if not User.query.filter_by(username=user[0]).first():
-        user = User(user[0], user[1])
+    if not User.query.filter_by(username=user['username']).first():
+        user = User(user['username'], user['password'])
         db.session.add(user)
         db.session.commit()
-        print(User.query.all(), "all_user")
-        print(user.get_password(), "add_user")
     else:
         abort(400)
     return ""
@@ -263,9 +263,11 @@ def remove_user(UserID):
 @verify_login
 def add_msg():
     msg = request.get_json(force=True)
+    token = request.headers.get('authorization')
+    user = User.query.filter_by(token = token).first()
     if not msg:
         abort(400)
-    msg = Messages(msg)
+    msg = Messages(msg['message'],user.id)
     db.session.add(msg)
     db.session.commit()
     return ""
