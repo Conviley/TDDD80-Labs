@@ -112,7 +112,6 @@ class Token(db.Model):
 
 def verify_auth_token(token):
     s = Serializer(app.config['SECRET_KEY'])
-    print(s.loads(token))
     try:
         print(s.loads(token))
         data = s.loads(token)
@@ -142,6 +141,8 @@ def verify_login(func):
     @wraps(func)
     def wrapper(*args,**kwargs):
         token = request.headers.get('authorization')
+        if token == None:
+            abort(401)
         if token is None:
             print("You need to be logged in 2!")
         g.user = verify_auth_token(token)
@@ -252,6 +253,7 @@ def mark_read(MessageID, UserId):
 
 
 @app.route('/messages/unread/<UserId>', methods=['GET'])
+@verify_login
 def unread_msg(UserId):
     message_list = []
     if not User.query.filter_by(id=UserId).first():
