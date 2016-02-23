@@ -105,7 +105,8 @@ class ServerTestCase(unittest.TestCase):
         self.send_message("hi",2,token2)
         self.mark_read(1,1,token1)
         #print(self.mark_read(1,1,token1))
-        rv = self.app.get('/messages/unread/' + str(2))
+        headers = {'authorization': token2}
+        rv = self.app.get('/messages/unread/' + str(2),headers=headers)
         unread_msg = json.loads(rv.data)
         assert ["Ribbedy",2] not in unread_msg[0]['readBy']
 
@@ -134,7 +135,7 @@ class ServerTestCase(unittest.TestCase):
         token = user.token.all()[0].token
         self.logout(token)
         userafter = User.query.filter_by(username = "Conviley").first()
-        self.assertEqual(userafter.token.all()[0].token,None)
+        self.assertEqual(userafter.token.all(),[])
 
 
     def send_message(self, message, user_id, token):
