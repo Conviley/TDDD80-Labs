@@ -14,6 +14,8 @@ if "OPENSHIFT_POSTGRESQL_DB_URL" in os.environ:
 else:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/pp.db"
 
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
 app.config['SECRET_KEY'] = 'gurra bor i en liten vagn av bambu'
 db = SQLAlchemy(app)
 
@@ -174,14 +176,13 @@ def login():
 @verify_login
 def logout():
     token = request.headers.get('authorization')
-    print(token, "header")
     user = verify_auth_token(token)
-    print(user)
     print(user.token.all(), "logouts")
     tokens = user.token.all()
     for tok in tokens:
         if tok.token == token:
             Token.query.filter_by(token = token).delete()
+    print(user.token.all(),"usertokens")
     db.session.commit()
     return ""
 
@@ -229,7 +230,6 @@ def get_msg(MessageID):
 @app.route('/messages/<MessageID>', methods=['DELETE'])
 @verify_login
 def remove_msg(MessageID):
-    token = request.headers.get('authorization')
     user = g.user
     msg_to_remove = Messages.query.filter_by(id=int(MessageID)).first()
     if not msg_to_remove or msg_to_remove.user_id != user.id:
