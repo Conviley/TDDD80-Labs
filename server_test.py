@@ -23,7 +23,7 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley", "password")
         self.login("Conviley", "password")
         user = User.query.filter_by(username="Conviley").first()
-        token = user.token
+        token = user.token.all()[0].token
         for i in range(messages_sent):
             self.send_message("Message",1, token)
         rv = self.get_all_messages()
@@ -43,7 +43,7 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley", "password")
         self.login("Conviley", "password")
         user = User.query.filter_by(username = "Conviley").first()
-        token = user.token
+        token = user.token.all()[0].token
         self.send_message("hello",1, token)
         rv = self.get_message(1)
         actual_message = json.loads(rv.data)
@@ -57,9 +57,9 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("rubbe", "password")
         self.login("rubbe", "password")
         user = User.query.filter_by(username = "Conviley").first()
-        token = user.token
+        token = user.token.all()[0].token
         user2 = User.query.filter_by(username = "rubbe").first()
-        token2 = user.token
+        token2 = user2.token.all()[0].token
         self.send_message("hello",1,token)
         self.send_message("hi",2,token2)
         self.mark_read(1,1,token)
@@ -84,7 +84,7 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley", "password")
         self.login("Conviley", "password")
         user = User.query.filter_by(username = "Conviley").first()
-        token = user.token
+        token = user.token.all()[0].token
         self.send_message("Hello Conviley",1, token)
         self.mark_read(1,1,token)
         rv = self.get_all_messages()
@@ -96,11 +96,11 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley","password")
         self.add_user("Ribbedy", "qwerty")
         self.login("Conviley", "password")
-        self.login("Ribeddy", "qwerty")
+        self.login("Ribbedy", "qwerty")
         user1 = User.query.filter_by(username = "Conviley").first()
         user2 = User.query.filter_by(username = "Ribbedy").first()
-        token1 = user1.token
-        token2 = user2.token
+        token1 = user1.token.all()[0].token
+        token2 = user2.token.all()[0].token
         self.send_message("Helloes",1,token1)
         self.send_message("hi",2,token2)
         self.mark_read(1,1,token1)
@@ -120,7 +120,8 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley", "password")
         self.login("Conviley", "password")
         user = User.query.filter_by(username = "Conviley").first()
-        token = user.token
+        print(user.token.all()[0].token,"is token")
+        token = user.token.all()[0].token
         self.send_message("Hello",1,token)
         rv = self.app.get('/messages/' + str(1))
         added_message= json.loads(rv.data)
@@ -130,10 +131,10 @@ class ServerTestCase(unittest.TestCase):
         self.add_user("Conviley", "password")
         self.login("Conviley", "password")
         user = User.query.filter_by(username = "Conviley").first()
-        token = user.token
+        token = user.token.all()[0].token
         self.logout(token)
         userafter = User.query.filter_by(username = "Conviley").first()
-        self.assertEqual(userafter.token,None)
+        self.assertEqual(userafter.token.all()[0].token,None)
 
 
     def send_message(self, message, user_id, token):
@@ -170,52 +171,6 @@ class ServerTestCase(unittest.TestCase):
         headers = {'authorization':token}
         return self.app.post('/user/logout', headers=headers)
 
-
-
-
-
-
-
-    # def test_add_message(self):
-    #     self.add_user("Conviley", "password")
-    #     print(User.query.all(), "Alla users")
-    #     self.login("Conviley", "password")
-    #     user = User.query.filter_by(username = "Conviley").first()
-    #     token = user.token
-    #     self.send_message("Hello",token)
-    #     rv = self.app.get('/messages/' + str(1))
-    #     added_message= json.loads(rv.data)
-    #     self.assertEqual(added_message['id'],1)
-    #
-    #
-    # def get_all_msgs(self):
-    #     return self.app.get('/messages')
-    #
-    # def get_all_users(self):
-    #     return self.app.get('/users')
-    #
-    # def send_message(self, message, token):
-    #     #data = json.dumps(dict('message' = message))
-    #     headres = {'authorization' : token}
-    #     return self.app.post('/messages', data = json.dumps(dict(message=message, token=token)),content_type="application/json" )
-    #
-    # def add_user(self, user,password):
-    #     return self.app.post('/user', data = json.dumps(dict(username = user, password = password)),content_type="application/json" )
-    #
-    # def delete_user(self,messageId):
-    #     return self.app.delete('/users/' + str(messageId), data = json.dumps(messageId),content_type="application/json")
-    #
-    # def get_message(self, MessageID):
-    #     return self.app.get('/messages/' + str(MessageID))
-    #
-    # def delete_message(self,MessageID):
-    #     return self.app.delete('/messages/' + str(MessageID))
-    #
-    # def mark_read(self,MessageID,UserID):
-    #     return self.app.post('http://127.0.0.1:9089/messages/'+str(MessageID)+'/flag/' + str(UserID))
-    #
-    # def login(self, user, password):
-    #     return self.app.post('/users/login', data = json.dumps(dict(username = user, password = password)))
 
 if __name__ == '__main__':
     unittest.main()
