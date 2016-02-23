@@ -27,8 +27,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(255))
-    token = db.Column(db.String(255), nullable=True)
 
+    token = db.relationship('Token',backref='user',lazy = 'dynamic')
     written_messages = db.relationship('Messages', backref='user',lazy='dynamic')
     messages_read = db.relationship('Messages', secondary=user_messages, back_populates = "readBy")
 
@@ -46,7 +46,8 @@ class User(db.Model):
     def generate_auth_token(self,experation=600):
         s = Serializer(app.config['SECRET_KEY'], expires_in=experation)
         token = s.dumps({'id':self.id})
-        self.token = token.decode('ascii')
+        token = Token(token.decode('ascii'),self.id)
+        db.session.add(token)
         db.session.commit()
         return s.dumps({'id':self.id})
 
@@ -97,20 +98,43 @@ class Messages(db.Model):
     def __repr__(self):
         return '<Message %r>' % self.message + '<Id: %r>' % self.id
 
+class Token(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    token = db.Column(db.String, unique=True)
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+
+    def __init__(self,token, user_id):
+        self.token = token
+        self.user_id = user_id
+
+    def __repr__(self):
+        return '<token %r>' % self.token + '<Id: %r>' % self.id
 
 def verify_auth_token(token):
     s = Serializer(app.config['SECRET_KEY'])
+    print(s.loads(token))
     try:
+        print(s.loads(token))
         data = s.loads(token)
+
     except SignatureExpired:
+        print("expired")
         return None
     except BadSignature:
+        print("bad")
         return None
     user = User.query.get(data['id'])
+    print(user.token.all()[0], "2ad")
+    tokens = user.token.all()
+    print(tokens,'token')
+    for tok in tokens:
+        print(tok.token, 'tok')
+        if token == tok.token:
+            return user
     if user.token == token:
         return user
     else:
-        print("you need to be logged in!")
+        print("you need to be logged in 1!")
         abort(401)
 
 
@@ -119,9 +143,10 @@ def verify_login(func):
     def wrapper(*args,**kwargs):
         token = request.headers.get('authorization')
         if token is None:
-            print("You need to be logged in!")
+            print("You need to be logged in 2!")
         g.user = verify_auth_token(token)
         if g.user is None:
+            print("asdasd")
             abort(401)
         return func(*args, **kwargs)
     return wrapper
@@ -147,14 +172,15 @@ def login():
 @app.route('/user/logout', methods=['POST'])
 @verify_login
 def logout():
-    #token = request.get_json()
     token = request.headers.get('authorization')
     print(token, "header")
     user = verify_auth_token(token)
-    #user = verify_auth_token(token['token'])
-    #user = User.query.filter_by(token = tokenn['token']).first()
     print(user)
-    user.token = None
+    print(user.token.all(), "logouts")
+    tokens = user.token.all()
+    for tok in tokens:
+        if tok.token == token:
+            Token.query.filter_by(token = token).delete()
     db.session.commit()
     return ""
 
@@ -203,7 +229,7 @@ def get_msg(MessageID):
 @verify_login
 def remove_msg(MessageID):
     token = request.headers.get('authorization')
-    user = User.query.filter_by(token = token).first()
+    user = g.user
     msg_to_remove = Messages.query.filter_by(id=int(MessageID)).first()
     if not msg_to_remove or msg_to_remove.user_id != user.id:
         abort(400)
@@ -263,8 +289,8 @@ def remove_user(UserID):
 @verify_login
 def add_msg():
     msg = request.get_json(force=True)
-    token = request.headers.get('authorization')
-    user = User.query.filter_by(token = token).first()
+    #token = request.headers.get('authorization')
+    user = User.query.filter_by(id = msg['user_id']).first()
     if not msg:
         abort(400)
     msg = Messages(msg['message'],user.id)
