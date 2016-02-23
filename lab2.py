@@ -45,7 +45,7 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password,password)
 
-    def generate_auth_token(self,experation=600):
+    def generate_auth_token(self,experation=604800):
         s = Serializer(app.config['SECRET_KEY'], expires_in=experation)
         token = s.dumps({'id':self.id})
         token = Token(token.decode('ascii'),self.id)
@@ -165,11 +165,11 @@ def login():
     user_info = request.get_json()
     try_users = User.query.filter_by(username=user_info['username']).first()
     if try_users is None:
-        return "User or password is not matching"
+        return "User or password is not matching", 401
     if try_users.check_password(user_info['password']):
         return try_users.generate_auth_token()
     else:
-        return "User or password is not matching"
+        return "User or password is not matching",401
 
 
 @app.route('/user/logout', methods=['POST'])
@@ -305,7 +305,7 @@ def db_reset():
     db.drop_all()
     db.create_all()
 
-db.create_all()
+db_reset()
 if __name__ == '__main__':
     app.debug = True
     db_reset()
