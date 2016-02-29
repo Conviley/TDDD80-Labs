@@ -2,3 +2,5 @@ virtlabs
 __pycache__
 .idea
 *.pyc
+kodgranskning.py
+lab2backup.py
